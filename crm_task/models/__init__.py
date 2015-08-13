@@ -24,3 +24,4 @@
 
 from . import crm_lead
 from . import project_task_work
+from . import project_task

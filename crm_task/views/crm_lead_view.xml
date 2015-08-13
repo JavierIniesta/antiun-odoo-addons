@@ -2,7 +2,7 @@
 <openerp>
 <data>
 
-<record model="ir.ui.view" id="crm_case_form_view_leads">
+<record model="ir.ui.view" id="crm_form_leads">
     <field name="name">CRM - Leads Form with project tasks</field>
     <field name="model">crm.lead</field>
     <field name="inherit_id" ref="crm.crm_case_form_view_leads"/>
@@ -11,13 +11,18 @@
             <field name="task"
                    context="{'default_project_id': project}"
                    domain="[('project_id', '=', project)]"/>
-            <field name="project"/>
+            <field name="project" attrs="{'readonly': [('task','!=',False)]}"/>
         </field>
         <notebook position="inside">
             <page string="Hours">
-                <field name="work_ids" context="{'default_lead': active_id}">
+                <field name="work_ids"
+                       context="{'default_lead': active_id,
+                                 'default_user_id': uid,
+                                 'default_project': project,
+                                 'default_task_id': task}">
                     <tree editable="bottom">
-                        <>
+                        <field name="project" invisible="1" />
+                        <field name="task_id" invisible="1" />
                         <field name="user_id" required="1" />
                         <field name="name" />
                         <field name="date" />

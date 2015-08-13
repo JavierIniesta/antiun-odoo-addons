@@ -32,6 +32,8 @@
     'external_dependencies': {},
     # Views templates, pages, menus, options and snippets
     'data': [
+        'views/crm_lead_view.xml',
+        'views/project_task_view.xml'
     ],
     # Qweb templates
     'qweb': [

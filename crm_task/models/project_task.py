@@ -25,15 +25,34 @@
 from openerp import models, fields, api
 
 
-class CrmLead(models.Model):
-    _inherit = 'crm.lead'
+class ProjectTask(models.Model):
+    _inherit = 'project.task'
 
-    project = fields.Many2one(comodel_name='project.project')
-    task = fields.Many2one(comodel_name='project.task')
-    work_ids = fields.One2many(comodel_name='project.task.work',
-                               inverse_name='lead')
+    leads = fields.One2many(comodel_name='crm.lead', inverse_name='task')
+    leads_count = fields.Integer(string='Leads number', compute='_count_leads',
+                                 store=True)
+    opportunities_count = fields.Integer(string='Opportunities number',
+                                         compute='_count_leads',
+                                         store=True)
 
     @api.one
-    @api.onchange('task')
-    def onchange_task(self):
-        self.work_ids.write({'task_id': self.task})
+    @api.depends('leads')
+    def _count_leads(self):
+        opportunities = 0
+        leads = 0
+        for crm_lead in self.leads:
+            if crm_lead.type == 'opportunity':
+                leads += 1
+            else:
+                opportunities += 1
+        self.leads_count = leads
+        self.opportunities_count = opportunities
+
+    @api.multi
+    def write(self, vals):
+        result = super(ProjectTask, self).write(vals)
+        if 'project_id' in vals:
+            leads = self.env['crm.lead'].search([('task', 'in', self.ids)])
+            if leads:
+                leads.write({'project': vals['project_id']})
+        return result
